@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:ui' show hashValues, Offset;
+import 'dart:ui' show Offset;
 import 'package:amap_flutter_map/src/types/base_overlay.dart';
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 import 'bitmap.dart';
@@ -68,7 +68,7 @@ class InfoWindow {
   }
 
   @override
-  int get hashCode => hashValues(title, snippet);
+  int get hashCode => Object.hash(title, snippet);
 
   @override
   String toString() {

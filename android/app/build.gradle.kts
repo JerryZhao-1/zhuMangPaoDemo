@@ -5,10 +5,16 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val amapAndroidKey = System.getenv("AMAP_ANDROID_KEY") ?: ""
+
 android {
     namespace = "com.aidrun.aidrun_demo"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -28,6 +34,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["AMAP_ANDROID_KEY"] = amapAndroidKey
+        buildConfigField("String", "AMAP_ANDROID_KEY", "\"$amapAndroidKey\"")
     }
 
     buildTypes {
@@ -41,4 +49,9 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation("com.amap.api:3dmap:8.1.0")
+    implementation("com.amap.api:location:5.6.0")
 }

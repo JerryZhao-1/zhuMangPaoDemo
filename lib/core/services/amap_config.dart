@@ -22,7 +22,9 @@ class AMapConfig {
   final String iosKey;
   final String webKey;
 
-  bool get hasNativeKeys => androidKey.isNotEmpty && iosKey.isNotEmpty;
+  bool get hasAndroidKey => androidKey.isNotEmpty;
+  bool get hasIosKey => iosKey.isNotEmpty;
+  bool get hasNativeKeys => hasAndroidKey || hasIosKey;
   bool get hasWebKey => webKey.isNotEmpty;
 
   bool get supportsNativeMap {
@@ -32,7 +34,13 @@ class AMapConfig {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
       return false;
     }
-    return hasNativeKeys && (Platform.isAndroid || Platform.isIOS);
+    if (Platform.isAndroid) {
+      return hasAndroidKey;
+    }
+    if (Platform.isIOS) {
+      return hasIosKey;
+    }
+    return false;
   }
 
   AMapApiKey? get apiKey {
@@ -40,8 +48,8 @@ class AMapConfig {
       return null;
     }
     return AMapApiKey(
-      androidKey: androidKey,
-      iosKey: iosKey,
+      androidKey: hasAndroidKey ? androidKey : null,
+      iosKey: hasIosKey ? iosKey : null,
     );
   }
 

@@ -12,26 +12,23 @@ packages:
   amap_flutter_base:
     dependency: "direct main"
     description:
-      name: amap_flutter_base
-      sha256: "9ef2439b8de7100cdd1b4357701b8ca8c059c0f2d9d0257b81750bbf0c6f53bb"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "third_party/amap_flutter_base"
+      relative: true
+    source: path
     version: "3.0.0"
   amap_flutter_location:
     dependency: "direct main"
     description:
-      name: amap_flutter_location
-      sha256: f35ff00e196d579608e0bc28ccbc1f6f53787644702f947de941f775769cc701
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "third_party/amap_flutter_location"
+      relative: true
+    source: path
     version: "3.0.0"
   amap_flutter_map:
     dependency: "direct main"
     description:
-      name: amap_flutter_map
-      sha256: "9cebb0b2f5fc7d3ae0427e99c41edc883e8f5459f6a28bc850f0f9e16918cf2f"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "third_party/amap_flutter_map"
+      relative: true
+    source: path
     version: "3.0.0"
   analyzer:
     dependency: transitive

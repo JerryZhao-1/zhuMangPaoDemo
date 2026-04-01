@@ -6,17 +6,23 @@ abstract class SpeechService {
 }
 
 class DeviceSpeechService implements SpeechService {
-  DeviceSpeechService() {
-    _tts.setLanguage('zh-CN');
-    _tts.setSpeechRate(0.48);
-    _tts.setPitch(1.0);
-  }
-
   final FlutterTts _tts = FlutterTts();
+  Future<void>? _setupFuture;
+
+  Future<void> _ensureSetup() {
+    return _setupFuture ??= () async {
+      await _tts.setLanguage('zh-CN');
+      await _tts.setSpeechRate(0.48);
+      await _tts.setPitch(1.0);
+      await _tts.awaitSpeakCompletion(true);
+      await _tts.setQueueMode(1);
+    }();
+  }
 
   @override
   Future<void> speak(String text) async {
     try {
+      await _ensureSetup();
       await _tts.stop();
       await _tts.speak(text);
     } catch (_) {}
@@ -25,6 +31,7 @@ class DeviceSpeechService implements SpeechService {
   @override
   Future<void> stop() async {
     try {
+      await _ensureSetup();
       await _tts.stop();
     } catch (_) {}
   }

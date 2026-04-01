@@ -22,6 +22,7 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
+    namespace 'com.amap.flutter.amap_flutter_map'
     compileSdkVersion 29
 
     defaultConfig {
@@ -33,6 +34,5 @@ android {
 }
 
 dependencies {
-    compileOnly 'com.amap.api:3dmap:8.1.0'
+    implementation 'com.amap.api:3dmap:8.1.0'
 }
-

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:aidrun_demo/core/services/amap_config.dart';
+import 'package:aidrun_demo/core/services/native_runtime_service.dart';
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 import 'package:amap_flutter_map/amap_flutter_map.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +52,30 @@ class AMapMapView extends StatelessWidget {
       );
     }
 
+    if (Platform.isAndroid) {
+      return FutureBuilder<bool>(
+        future: NativeRuntimeService.isAndroidEmulator(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return _MapFallback(
+              message: fallbackMessage ?? '地图初始化中，请稍候。',
+            );
+          }
+          if (snapshot.data == true) {
+            return _MapFallback(
+              message:
+                  fallbackMessage ?? 'Android 模拟器上的高德原生地图不稳定，当前显示地图占位。请使用真机查看真实地图效果。',
+            );
+          }
+          return _buildNativeMap();
+        },
+      );
+    }
+
+    return _buildNativeMap();
+  }
+
+  Widget _buildNativeMap() {
     final mappedMarkers = markers.map((item) {
       return Marker(
         position: LatLng(item.latitude, item.longitude),
@@ -56,7 +83,7 @@ class AMapMapView extends StatelessWidget {
           title: item.title,
           snippet: item.snippet,
         ),
-      )..setId(item.id);
+      );
     }).toSet();
 
     return ClipRRect(

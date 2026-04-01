@@ -1,5 +1,9 @@
 import 'package:aidrun_demo/app/aidrun_app.dart';
 import 'package:aidrun_demo/app/providers.dart';
+import 'package:aidrun_demo/core/models/place_suggestion.dart';
+import 'package:aidrun_demo/core/models/run_request_input.dart';
+import 'package:aidrun_demo/core/services/amap_config.dart';
+import 'package:aidrun_demo/core/services/place_search_service.dart';
 import 'package:aidrun_demo/features/blind/blind_active_run_page.dart';
 import 'package:aidrun_demo/features/volunteer/volunteer_dashboard_page.dart';
 import 'package:aidrun_demo/core/models/user_role.dart';
@@ -198,5 +202,53 @@ void main() {
     expect(find.text('速干排汗T恤'), findsOneWidget);
     expect(find.text('兑换'), findsWidgets);
     expect(tester.takeException(), isNull);
+  });
+
+  test('place search falls back to local demo data when web key is missing', () async {
+    final service = AMapPlaceSearchService(
+      const AMapConfig(
+        androidKey: '',
+        iosKey: '',
+        webKey: '',
+      ),
+    );
+
+    final results = await service.search('朝阳');
+
+    expect(results, isNotEmpty);
+    expect(
+      results.any(
+        (item) => item.name.contains('朝阳') || item.address.contains('朝阳'),
+      ),
+      isTrue,
+    );
+  });
+
+  test('blind run stores selected place coordinates', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(preferences),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final run = container.read(appStateControllerProvider.notifier).createBlindRun(
+          const RunRequestInput(
+            place: PlaceSuggestion(
+              name: '测试地点',
+              address: '测试地址',
+              latitude: 31.2304,
+              longitude: 121.4737,
+            ),
+            timeLabel: '今天晚上',
+          ),
+        );
+
+    expect(run.location, '测试地点');
+    expect(run.address, '测试地址');
+    expect(run.latitude, 31.2304);
+    expect(run.longitude, 121.4737);
   });
 }

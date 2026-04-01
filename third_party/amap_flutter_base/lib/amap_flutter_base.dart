@@ -1,6 +1,6 @@
 library amap_flutter_base;
 
-import 'dart:ui' show Offset, hashValues;
+import 'dart:ui' show Offset;
 import 'package:flutter/material.dart';
 import 'dart:math';
 

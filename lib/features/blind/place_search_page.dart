@@ -1,6 +1,5 @@
 import 'package:aidrun_demo/app/providers.dart';
 import 'package:aidrun_demo/core/models/place_suggestion.dart';
-import 'package:aidrun_demo/core/services/amap_config.dart';
 import 'package:aidrun_demo/core/services/amap_location_service.dart';
 import 'package:aidrun_demo/core/theme/app_theme.dart';
 import 'package:aidrun_demo/core/widgets/common_widgets.dart';

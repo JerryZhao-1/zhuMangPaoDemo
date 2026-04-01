@@ -109,7 +109,7 @@ class AMapLocation {
 
   @override
   int get hashCode =>
-      hashValues(provider, latLng, accuracy, altitude, bearing, speed, time);
+      Object.hash(provider, latLng, accuracy, altitude, bearing, speed, time);
 }
 
 /// 经纬度坐标对象， 单位为度.
@@ -151,7 +151,7 @@ class LatLng {
   }
 
   @override
-  int get hashCode => hashValues(latitude, longitude);
+  int get hashCode => Object.hash(latitude, longitude);
 }
 
 /// 经纬度对齐的矩形.
@@ -226,5 +226,5 @@ class LatLngBounds {
   }
 
   @override
-  int get hashCode => hashValues(southwest, northeast);
+  int get hashCode => Object.hash(southwest, northeast);
 }

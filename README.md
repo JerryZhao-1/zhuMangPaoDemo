@@ -18,6 +18,8 @@
    `flutter pub get`
 2. 本地运行
    `flutter run --dart-define=AMAP_ANDROID_KEY=你的AndroidKey --dart-define=AMAP_IOS_KEY=你的iOSKey --dart-define=AMAP_WEB_KEY=你的WebServiceKey`
+3. 已配置本地 key 后可直接运行
+   `./scripts/flutter_run_with_amap.sh`
 
 ## 高德地图配置
 

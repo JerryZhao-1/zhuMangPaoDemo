@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:aidrun_demo/core/services/amap_config.dart';
+import 'package:aidrun_demo/core/services/native_runtime_service.dart';
 import 'package:amap_flutter_location/amap_flutter_location.dart';
 import 'package:amap_flutter_location/amap_location_option.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -28,6 +29,9 @@ class AMapLocationService implements AppLocationService {
   @override
   Future<DeviceLocation?> locateOnce() async {
     if (!_config.supportsNativeMap) {
+      return null;
+    }
+    if (Platform.isAndroid && await NativeRuntimeService.isAndroidEmulator()) {
       return null;
     }
 

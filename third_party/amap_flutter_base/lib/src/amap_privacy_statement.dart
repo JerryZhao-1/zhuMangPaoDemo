@@ -47,7 +47,7 @@ class AMapPrivacyStatement {
   }
 
   @override
-  int get hashCode => hashValues(hasContains, hasShow, hasAgree);
+  int get hashCode => Object.hash(hasContains, hasShow, hasAgree);
 
   @override
   String toString() {
