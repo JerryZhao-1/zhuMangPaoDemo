@@ -1,6 +1,6 @@
 # AidRun 助盲跑 Flutter App
 
-本仓库已将原 React/Vite 前端迁移为 Flutter 双端项目，当前主工程用于构建 Android 与 iOS 前端展示版。
+本仓库为 Flutter 双端项目，当前主工程用于构建 Android 与 iOS 前端展示版。
 
 ## 技术栈
 
