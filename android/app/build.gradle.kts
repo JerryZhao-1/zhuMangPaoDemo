@@ -1,3 +1,6 @@
+import java.nio.charset.StandardCharsets
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,7 +8,33 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val amapAndroidKey = System.getenv("AMAP_ANDROID_KEY") ?: ""
+fun decodeFlutterDartDefines(encodedDefines: String?): Map<String, String> {
+    if (encodedDefines.isNullOrBlank()) {
+        return emptyMap()
+    }
+
+    return encodedDefines
+        .split(',')
+        .mapNotNull { encoded ->
+            runCatching {
+                String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8)
+            }.getOrNull()
+        }
+        .mapNotNull { decoded ->
+            val separatorIndex = decoded.indexOf('=')
+            if (separatorIndex <= 0) {
+                return@mapNotNull null
+            }
+            decoded.substring(0, separatorIndex) to decoded.substring(separatorIndex + 1)
+        }
+        .toMap()
+}
+
+// Flutter forwards --dart-define values to Gradle as a base64-encoded property.
+val flutterDartDefines = decodeFlutterDartDefines(project.findProperty("dart-defines") as? String)
+val amapAndroidKey =
+    flutterDartDefines["AMAP_ANDROID_KEY"]?.takeIf { it.isNotBlank() }
+        ?: System.getenv("AMAP_ANDROID_KEY").orEmpty()
 
 android {
     namespace = "com.aidrun.aidrun_demo"

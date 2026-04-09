@@ -4,6 +4,7 @@ import 'package:aidrun_demo/core/models/place_suggestion.dart';
 import 'package:aidrun_demo/core/models/run_request_input.dart';
 import 'package:aidrun_demo/core/services/amap_config.dart';
 import 'package:aidrun_demo/core/services/place_search_service.dart';
+import 'package:aidrun_demo/core/widgets/amap_map_view.dart';
 import 'package:aidrun_demo/features/blind/blind_active_run_page.dart';
 import 'package:aidrun_demo/features/volunteer/volunteer_dashboard_page.dart';
 import 'package:aidrun_demo/core/models/user_role.dart';
@@ -222,6 +223,28 @@ void main() {
       ),
       isTrue,
     );
+  });
+
+  testWidgets('amap map view shows fallback when native key is missing', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: AMapMapView(
+            config: AMapConfig(
+              androidKey: '',
+              iosKey: '',
+              webKey: '',
+            ),
+            centerLatitude: 39.9042,
+            centerLongitude: 116.4074,
+            markers: [],
+            fallbackMessage: '测试占位提示',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('测试占位提示'), findsOneWidget);
   });
 
   test('blind run stores selected place coordinates', () async {
