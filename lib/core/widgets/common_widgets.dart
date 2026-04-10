@@ -1,6 +1,8 @@
 import 'package:aidrun_demo/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+enum BlindAccessibleButtonVariant { filled, outlined }
+
 class BlindAccessibleButton extends StatelessWidget {
   const BlindAccessibleButton({
     super.key,
@@ -9,6 +11,13 @@ class BlindAccessibleButton extends StatelessWidget {
     required this.child,
     this.hint,
     this.enabled = true,
+    this.variant = BlindAccessibleButtonVariant.filled,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.borderColor,
+    this.padding,
+    this.borderRadius = 28,
+    this.width,
   });
 
   final VoidCallback? onPressed;
@@ -16,9 +25,60 @@ class BlindAccessibleButton extends StatelessWidget {
   final String? hint;
   final bool enabled;
   final Widget child;
+  final BlindAccessibleButtonVariant variant;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final Color? borderColor;
+  final EdgeInsetsGeometry? padding;
+  final double borderRadius;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
+    final isFilled = variant == BlindAccessibleButtonVariant.filled;
+    final effectiveBackgroundColor = enabled
+        ? (backgroundColor ?? (isFilled ? AppTheme.yellow : Colors.transparent))
+        : (backgroundColor ?? (isFilled ? AppTheme.yellow : Colors.transparent))
+              .withValues(alpha: isFilled ? 0.45 : 1);
+    final effectiveForegroundColor = enabled
+        ? (foregroundColor ?? (isFilled ? Colors.black : Colors.white))
+        : (foregroundColor ?? (isFilled ? Colors.black : Colors.white))
+              .withValues(alpha: 0.8);
+    final effectiveBorderColor = enabled
+        ? (borderColor ?? (isFilled ? Colors.transparent : Colors.white24))
+        : (borderColor ?? (isFilled ? Colors.transparent : Colors.white24))
+              .withValues(alpha: 0.5);
+
+    final visualChild = Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(borderRadius),
+        onTap: enabled ? onPressed : null,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: effectiveBackgroundColor,
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: Border.all(color: effectiveBorderColor),
+          ),
+          child: IconTheme(
+            data: IconThemeData(color: effectiveForegroundColor),
+            child: DefaultTextStyle(
+              style: TextStyle(
+                color: effectiveForegroundColor,
+                fontWeight: FontWeight.w700,
+              ),
+              child: Padding(
+                padding:
+                    padding ??
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                child: child,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
     return MergeSemantics(
       child: Semantics(
         button: true,
@@ -26,10 +86,10 @@ class BlindAccessibleButton extends StatelessWidget {
         label: label,
         hint: hint,
         onTap: enabled ? onPressed : null,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: enabled ? onPressed : null,
-          child: AbsorbPointer(child: ExcludeSemantics(child: child)),
+        child: ExcludeSemantics(
+          child: width == null
+              ? visualChild
+              : SizedBox(width: width, child: visualChild),
         ),
       ),
     );
@@ -67,47 +127,35 @@ class LargeActionButton extends StatelessWidget {
       enabled: enabled,
       label: semanticsLabel ?? title,
       hint: semanticsHint,
-      child: SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          onPressed: enabled ? () {} : null,
-          style: FilledButton.styleFrom(
-            backgroundColor: backgroundColor,
-            foregroundColor: foregroundColor,
-            disabledBackgroundColor: backgroundColor.withValues(alpha: 0.45),
-            disabledForegroundColor: foregroundColor.withValues(alpha: 0.8),
-            minimumSize: const Size.fromHeight(240),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(32),
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      borderRadius: 32,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 240),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon,
+            const SizedBox(height: 20),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900),
             ),
-            padding: const EdgeInsets.all(24),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              icon,
-              const SizedBox(height: 20),
+            if (subtitle != null) ...[
+              const SizedBox(height: 12),
               Text(
-                title,
+                subtitle!,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  subtitle!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
             ],
-          ),
+          ],
         ),
       ),
     );

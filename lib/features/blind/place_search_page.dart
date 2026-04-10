@@ -134,21 +134,18 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
             enabled: true,
             label: '返回预约页面',
             hint: '返回上一步继续填写预约',
-            child: FilledButton.icon(
-              onPressed: () {},
-              style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.zinc,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
+            backgroundColor: AppTheme.zinc,
+            foregroundColor: Colors.white,
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_back),
+                SizedBox(width: 8),
+                Text(
+                  '返回',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
-              ),
-              icon: const Icon(Icons.arrow_back),
-              label: const Text(
-                '返回',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-              ),
+              ],
             ),
           ),
           const SizedBox(width: 16),
@@ -231,21 +228,19 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
                   enabled: true,
                   label: '语音搜索地点',
                   hint: '开始语音录入地点名称；如果失败，可继续使用文字搜索',
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: () {},
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.yellow,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                      ),
-                      icon: Icon(
+                  width: double.infinity,
+                  backgroundColor: AppTheme.yellow,
+                  foregroundColor: Colors.black,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
                         _voiceState == VoiceCaptureState.listening
                             ? Icons.graphic_eq
                             : Icons.mic,
                       ),
-                      label: Text(
+                      const SizedBox(width: 10),
+                      Text(
                         switch (_voiceState) {
                           VoiceCaptureState.listening => '正在收听地点...',
                           VoiceCaptureState.processing => '正在处理语音...',
@@ -256,7 +251,7 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],
@@ -285,36 +280,59 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
                 child: BlindAccessibleButton(
                   onPressed: () => context.pop(place),
                   enabled: true,
-                  label: '地点候选，${place.name}，地址${_addressReadout(place)}，选择此地点',
+                  label: '地点候选，${place.name}，地址${_addressReadout(place)}',
                   hint: '双击选择这个地点并返回预约页面',
-                  child: SectionCard(
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const ExcludeSemantics(
-                        child: CircleAvatar(child: Icon(Icons.place)),
-                      ),
-                      title: Text(
-                        place.name,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
+                  width: double.infinity,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  borderColor: Colors.white24,
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      const CircleAvatar(child: Icon(Icons.place)),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              place.name,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              place.address.isEmpty ? '未提供详细地址' : place.address,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          place.address.isEmpty ? '未提供详细地址' : place.address,
+                      const SizedBox(width: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: const Text(
+                          '选择',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                      trailing: FilledButton(
-                        onPressed: () {},
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text('选择'),
-                      ),
-                    ),
+                    ],
                   ),
                 ),
               ),

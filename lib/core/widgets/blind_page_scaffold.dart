@@ -44,27 +44,23 @@ class BlindPageScaffold extends ConsumerWidget {
                 enabled: true,
                 label: 'AI语音助手',
                 hint: '当前未开放，点击后会提示稍后使用',
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () {},
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.zinc,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    icon: const Icon(Icons.record_voice_over),
-                    label: const Text(
+                width: double.infinity,
+                backgroundColor: AppTheme.zinc,
+                foregroundColor: Colors.white,
+                borderRadius: 24,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.record_voice_over),
+                    SizedBox(width: 10),
+                    Text(
                       'AI语音助手',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],

@@ -67,24 +67,22 @@ class _BlindDashboardPageState extends ConsumerState<BlindDashboardPage> {
                 enabled: true,
                 label: '设置',
                 hint: '打开设置页面',
-                child: FilledButton.icon(
-                  onPressed: () {},
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.zinc,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
+                backgroundColor: AppTheme.zinc,
+                foregroundColor: Colors.white,
+                width: 150,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 8),
+                    Text(
+                      '设置',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.settings),
-                  label: const Text(
-                    '设置',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  ],
                 ),
               ),
               BlindAccessibleButton(
@@ -95,24 +93,22 @@ class _BlindDashboardPageState extends ConsumerState<BlindDashboardPage> {
                 enabled: true,
                 label: '切换角色',
                 hint: '退出盲人模式并返回角色选择',
-                child: FilledButton.icon(
-                  onPressed: () {},
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.zinc,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
+                backgroundColor: AppTheme.zinc,
+                foregroundColor: Colors.white,
+                width: 150,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.logout),
+                    SizedBox(width: 8),
+                    Text(
+                      '切换角色',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.logout),
-                  label: const Text(
-                    '切换角色',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                  ],
                 ),
               ),
             ],

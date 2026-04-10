@@ -133,21 +133,18 @@ class _RequestRunPageState extends ConsumerState<RequestRunPage> {
             enabled: true,
             label: '返回盲人主页',
             hint: '返回首页，不保存当前预约内容',
-            child: FilledButton.icon(
-              onPressed: () {},
-              style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.zinc,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
+            backgroundColor: AppTheme.zinc,
+            foregroundColor: Colors.white,
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_back),
+                SizedBox(width: 8),
+                Text(
+                  '返回首页',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
-              ),
-              icon: const Icon(Icons.arrow_back),
-              label: const Text(
-                '返回首页',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-              ),
+              ],
             ),
           ),
           const SizedBox(width: 16),
@@ -234,21 +231,19 @@ class _RequestRunPageState extends ConsumerState<RequestRunPage> {
                   enabled: true,
                   label: '语音输入出发时间',
                   hint: '开始录入出发时间；如果失败，可继续使用下方时间选项',
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: () {},
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.emerald,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                      ),
-                      icon: Icon(
+                  width: double.infinity,
+                  backgroundColor: AppTheme.emerald,
+                  foregroundColor: Colors.black,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
                         _timeVoiceState == VoiceCaptureState.listening
                             ? Icons.graphic_eq
                             : Icons.mic,
                       ),
-                      label: Text(
+                      const SizedBox(width: 10),
+                      Text(
                         switch (_timeVoiceState) {
                           VoiceCaptureState.listening => '正在收听时间...',
                           VoiceCaptureState.processing => '正在处理语音...',
@@ -259,7 +254,7 @@ class _RequestRunPageState extends ConsumerState<RequestRunPage> {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -296,27 +291,15 @@ class _RequestRunPageState extends ConsumerState<RequestRunPage> {
             enabled: _selectedPlace != null && !_submitting,
             label: _selectedPlace == null ? '确认预约，不可用，请先选择地点' : '确认预约',
             hint: _selectedPlace == null ? '先完成地点选择，再确认预约' : '提交当前地点和时间，创建陪跑预约',
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () {},
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  disabledBackgroundColor: Colors.white24,
-                  disabledForegroundColor: Colors.white54,
-                  padding: const EdgeInsets.symmetric(vertical: 22),
-                ),
-                child: Text(
-                  _selectedPlace == null
-                      ? '请先选择地点'
-                      : (_submitting ? '正在提交...' : '确认预约'),
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
+            width: double.infinity,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
+            child: Text(
+              _selectedPlace == null
+                  ? '请先选择地点'
+                  : (_submitting ? '正在提交...' : '确认预约'),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
             ),
           ),
         ],

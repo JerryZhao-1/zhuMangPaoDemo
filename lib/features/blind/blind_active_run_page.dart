@@ -122,31 +122,23 @@ class _BlindActiveRunPageState extends ConsumerState<BlindActiveRunPage> {
                 enabled: true,
                 label: '评价${rating.label}',
                 hint: '提交${rating.label}并返回盲人主页',
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {},
-                    style: FilledButton.styleFrom(
-                      backgroundColor: switch (rating) {
-                        RunRating.good => AppTheme.emerald,
-                        RunRating.average => AppTheme.yellow,
-                        RunRating.bad => AppTheme.red,
-                      },
-                      foregroundColor: rating == RunRating.bad
-                          ? Colors.white
-                          : Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 28),
-                    ),
-                    child: Text(
-                      rating.label,
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
+                backgroundColor: switch (rating) {
+                  RunRating.good => AppTheme.emerald,
+                  RunRating.average => AppTheme.yellow,
+                  RunRating.bad => AppTheme.red,
+                },
+                foregroundColor: rating == RunRating.bad
+                    ? Colors.white
+                    : Colors.black,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 28,
+                  horizontal: 20,
+                ),
+                child: Text(
+                  rating.label,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
@@ -294,20 +286,13 @@ class _BlindActiveRunPageState extends ConsumerState<BlindActiveRunPage> {
               onPressed: () {
                 controller.acceptRun(run.id);
               },
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  side: const BorderSide(color: Colors.white24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 22),
-                ),
-                child: const Text(
-                  '[测试] 模拟志愿者接单',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                ),
+              variant: BlindAccessibleButtonVariant.outlined,
+              foregroundColor: Colors.white70,
+              borderColor: Colors.white24,
+              padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
+              child: const Text(
+                '[测试] 模拟志愿者接单',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
               ),
             ),
           if (run.status == RunStatus.accepted) ...[
@@ -315,21 +300,19 @@ class _BlindActiveRunPageState extends ConsumerState<BlindActiveRunPage> {
               label: '联系志愿者',
               hint: '当前为演示按钮，不会拨号',
               onPressed: () {},
-              child: FilledButton.icon(
-                onPressed: () {},
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.emerald,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
+              backgroundColor: AppTheme.emerald,
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.phone),
+                  SizedBox(width: 10),
+                  Text(
+                    '联系志愿者',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 22),
-                ),
-                icon: const Icon(Icons.phone),
-                label: const Text(
-                  '联系志愿者',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
-                ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
@@ -338,20 +321,13 @@ class _BlindActiveRunPageState extends ConsumerState<BlindActiveRunPage> {
               hint: '将当前状态切换为志愿者已到达',
               onPressed: () =>
                   controller.updateRunStatus(run.id, RunStatus.arrived),
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  side: const BorderSide(color: Colors.white24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                ),
-                child: const Text(
-                  '[测试] 模拟志愿者到达',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                ),
+              variant: BlindAccessibleButtonVariant.outlined,
+              foregroundColor: Colors.white70,
+              borderColor: Colors.white24,
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+              child: const Text(
+                '[测试] 模拟志愿者到达',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
               ),
             ),
           ],
@@ -361,20 +337,13 @@ class _BlindActiveRunPageState extends ConsumerState<BlindActiveRunPage> {
               hint: '将当前状态切换为开始跑步',
               onPressed: () =>
                   controller.updateRunStatus(run.id, RunStatus.running),
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  side: const BorderSide(color: Colors.white24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                ),
-                child: const Text(
-                  '[测试] 模拟开始跑步',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                ),
+              variant: BlindAccessibleButtonVariant.outlined,
+              foregroundColor: Colors.white70,
+              borderColor: Colors.white24,
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+              child: const Text(
+                '[测试] 模拟开始跑步',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
               ),
             ),
           if (run.status == RunStatus.running)
@@ -383,20 +352,13 @@ class _BlindActiveRunPageState extends ConsumerState<BlindActiveRunPage> {
               hint: '将当前状态切换为行程完成，并进入评价',
               onPressed: () =>
                   controller.updateRunStatus(run.id, RunStatus.completed),
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  side: const BorderSide(color: Colors.white24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                ),
-                child: const Text(
-                  '[测试] 模拟结束行程',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                ),
+              variant: BlindAccessibleButtonVariant.outlined,
+              foregroundColor: Colors.white70,
+              borderColor: Colors.white24,
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+              child: const Text(
+                '[测试] 模拟结束行程',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
               ),
             ),
           if ([RunStatus.pending, RunStatus.accepted].contains(run.status)) ...[
@@ -408,21 +370,19 @@ class _BlindActiveRunPageState extends ConsumerState<BlindActiveRunPage> {
                 controller.cancelRun(run.id);
                 context.go('/blind');
               },
-              child: FilledButton.icon(
-                onPressed: () {},
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.red,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
+              backgroundColor: AppTheme.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cancel),
+                  SizedBox(width: 10),
+                  Text(
+                    '取消行程',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 22),
-                ),
-                icon: const Icon(Icons.cancel),
-                label: const Text(
-                  '取消行程',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
-                ),
+                ],
               ),
             ),
           ],
@@ -437,12 +397,22 @@ class _SemanticButton extends StatelessWidget {
     required this.label,
     required this.hint,
     this.onPressed,
+    this.variant = BlindAccessibleButtonVariant.filled,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.borderColor,
+    this.padding,
     required this.child,
   });
 
   final String label;
   final String hint;
   final VoidCallback? onPressed;
+  final BlindAccessibleButtonVariant variant;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final Color? borderColor;
+  final EdgeInsetsGeometry? padding;
   final Widget child;
 
   @override
@@ -452,7 +422,13 @@ class _SemanticButton extends StatelessWidget {
       enabled: onPressed != null,
       label: label,
       hint: hint,
-      child: SizedBox(width: double.infinity, child: child),
+      variant: variant,
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+      borderColor: borderColor,
+      width: double.infinity,
+      padding: padding,
+      child: child,
     );
   }
 }

@@ -150,10 +150,20 @@ void main() {
           contains('已找到1个地点候选。第一条是朝阳公园，北京市朝阳区朝阳公园南路1号。请逐项选择。'),
         );
         expect(find.text('朝阳公园'), findsOneWidget);
+        final resultCard = find.bySemanticsLabel('地点候选，朝阳公园，地址北京市朝阳区朝阳公园南路1号');
+        expect(resultCard, findsOneWidget);
         expect(
-          find.bySemanticsLabel('地点候选，朝阳公园，地址北京市朝阳区朝阳公园南路1号，选择此地点'),
-          findsOneWidget,
+          tester.getSemantics(resultCard),
+          matchesSemantics(
+            label: '地点候选，朝阳公园，地址北京市朝阳区朝阳公园南路1号',
+            hint: '双击选择这个地点并返回预约页面',
+            isButton: true,
+            hasEnabledState: true,
+            hasTapAction: true,
+            isEnabled: true,
+          ),
         );
+        expect(find.bySemanticsLabel('选择'), findsNothing);
       } finally {
         semantics.dispose();
       }
