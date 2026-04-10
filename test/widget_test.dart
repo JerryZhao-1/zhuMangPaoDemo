@@ -7,6 +7,7 @@ import 'package:aidrun_demo/core/services/amap_config.dart';
 import 'package:aidrun_demo/core/services/amap_location_service.dart';
 import 'package:aidrun_demo/core/services/place_search_service.dart';
 import 'package:aidrun_demo/core/services/speech_service.dart';
+import 'package:aidrun_demo/core/theme/app_theme.dart';
 import 'package:aidrun_demo/features/blind/place_search_page.dart';
 import 'package:aidrun_demo/features/blind/blind_active_run_page.dart';
 import 'package:aidrun_demo/features/volunteer/volunteer_dashboard_page.dart';
@@ -34,6 +35,51 @@ void main() {
 
     expect(find.text('我是盲人跑者'), findsOneWidget);
     expect(find.text('我是志愿者'), findsOneWidget);
+  });
+
+  testWidgets('app stays in light theme regardless of system theme', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+        child: const AidRunApp(),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.themeMode, ThemeMode.light);
+  });
+
+  testWidgets('light theme uses brand black as default text foreground', (
+    tester,
+  ) async {
+    Color? bodyColor;
+    Color? titleColor;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: Builder(
+          builder: (context) {
+            final textTheme = Theme.of(context).textTheme;
+            bodyColor = textTheme.bodyMedium?.color;
+            titleColor = textTheme.headlineMedium?.color;
+            return const Scaffold(body: Text('主题默认黑字'));
+          },
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(bodyColor, AppTheme.black);
+    expect(titleColor, AppTheme.black);
   });
 
   testWidgets('restores blind session route', (tester) async {

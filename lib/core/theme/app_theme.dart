@@ -19,7 +19,11 @@ class AppTheme {
     );
 
     return base.copyWith(
-      textTheme: base.textTheme.apply(fontFamily: 'SF Pro Display'),
+      textTheme: base.textTheme.apply(
+        fontFamily: 'SF Pro Display',
+        bodyColor: black,
+        displayColor: black,
+      ),
       appBarTheme: const AppBarTheme(
         centerTitle: false,
         backgroundColor: Colors.transparent,
