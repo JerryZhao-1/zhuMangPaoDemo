@@ -19,15 +19,17 @@ class VolunteerDashboardPage extends ConsumerStatefulWidget {
       _VolunteerDashboardPageState();
 }
 
-class _VolunteerDashboardPageState extends ConsumerState<VolunteerDashboardPage> {
+class _VolunteerDashboardPageState
+    extends ConsumerState<VolunteerDashboardPage> {
   int _tabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appStateControllerProvider);
     final controller = ref.read(appStateControllerProvider.notifier);
-    final pendingRuns =
-        state.runs.where((run) => run.status == RunStatus.pending).toList();
+    final pendingRuns = state.runs
+        .where((run) => run.status == RunStatus.pending)
+        .toList();
     final activeRun = state.runs
         .where((run) => run.volunteer?.id == controller.currentUser?.id)
         .where(
@@ -38,13 +40,17 @@ class _VolunteerDashboardPageState extends ConsumerState<VolunteerDashboardPage>
           ].contains(run.status),
         )
         .firstOrNull;
-    final volunteerHistoryRuns = state.runs
-        .where((run) => run.volunteer?.id == controller.currentUser?.id)
-        .where(
-          (run) => [RunStatus.completed, RunStatus.cancelled].contains(run.status),
-        )
-        .toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final volunteerHistoryRuns =
+        state.runs
+            .where((run) => run.volunteer?.id == controller.currentUser?.id)
+            .where(
+              (run) => [
+                RunStatus.completed,
+                RunStatus.cancelled,
+              ].contains(run.status),
+            )
+            .toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     final pages = [
       _VolunteerMapTab(
@@ -76,7 +82,7 @@ class _VolunteerDashboardPageState extends ConsumerState<VolunteerDashboardPage>
   }
 }
 
-class _VolunteerMapTab extends StatelessWidget {
+class _VolunteerMapTab extends StatefulWidget {
   const _VolunteerMapTab({
     required this.config,
     required this.controller,
@@ -90,33 +96,51 @@ class _VolunteerMapTab extends StatelessWidget {
   final Run? activeRun;
 
   @override
+  State<_VolunteerMapTab> createState() => _VolunteerMapTabState();
+}
+
+class _VolunteerMapTabState extends State<_VolunteerMapTab> {
+  static const double _collapsedSheetSize = 0.16;
+  static const double _defaultSheetSize = 0.56;
+  static const double _expandedSheetSize = 0.92;
+  static const Key _sheetKey = Key('volunteer-order-sheet');
+  static const Key _sheetHeaderKey = Key('volunteer-order-sheet-header');
+  static const Key _sheetScrollKey = Key('volunteer-order-sheet-scroll');
+
+  double _currentSheetSize = _defaultSheetSize;
+
+  bool get _isCollapsed => _currentSheetSize <= _collapsedSheetSize + 0.02;
+
+  @override
   Widget build(BuildContext context) {
-    final currentActiveRun = activeRun;
+    final currentActiveRun = widget.activeRun;
+    final pendingRuns = widget.pendingRuns;
     final points = pendingRuns
         .where((run) => run.latitude != null && run.longitude != null)
-        .map((run) => AMapMarkerViewData(
-              id: run.id,
-              latitude: run.latitude!,
-              longitude: run.longitude!,
-              title: run.location,
-              snippet: run.address.isEmpty ? run.timeLabel : run.address,
-            ))
+        .map(
+          (run) => AMapMarkerViewData(
+            id: run.id,
+            latitude: run.latitude!,
+            longitude: run.longitude!,
+            title: run.location,
+            snippet: run.address.isEmpty ? run.timeLabel : run.address,
+          ),
+        )
         .toList();
 
     return Stack(
       children: [
         Positioned.fill(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 180),
-            child: AMapMapView(
-              config: config,
-              centerLatitude: 39.9042,
-              centerLongitude: 116.4074,
-              zoom: 11,
-              showMyLocation: true,
-              markers: points,
-              fallbackMessage: '高德地图未配置完成，当前显示附近需求列表，地图区域已降级。',
-            ),
+          child: AMapMapView(
+            config: widget.config,
+            centerLatitude: 39.9042,
+            centerLongitude: 116.4074,
+            zoom: 11,
+            showMyLocation: true,
+            markers: points,
+            fallbackMessage: widget.config.isNoAMapDemoMode
+                ? '当前处于 no-AMap 演示模式，地图区域已降级，附近需求列表仍可正常交互。'
+                : '高德地图未配置完成，当前显示附近需求列表，地图区域已降级。',
           ),
         ),
         Positioned(
@@ -140,160 +164,223 @@ class _VolunteerMapTab extends StatelessWidget {
             ),
           ),
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.56,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 12),
-                Container(
-                  width: 48,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(99),
+        Positioned.fill(
+          child: NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              if ((_currentSheetSize - notification.extent).abs() > 0.005) {
+                setState(() => _currentSheetSize = notification.extent);
+              }
+              return false;
+            },
+            child: DraggableScrollableSheet(
+              initialChildSize: _defaultSheetSize,
+              minChildSize: _collapsedSheetSize,
+              maxChildSize: _expandedSheetSize,
+              snap: true,
+              expand: false,
+              snapSizes: const [
+                _collapsedSheetSize,
+                _defaultSheetSize,
+                _expandedSheetSize,
+              ],
+              builder: (context, scrollController) {
+                return DecoratedBox(
+                  key: _sheetKey,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(36),
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    children: [
-                      Text(
-                        '附近需求 (${pendingRuns.length})',
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    children: [
-                      if (currentActiveRun != null)
-                        GestureDetector(
-                          onTap: () =>
-                              context.go('/volunteer/run/${currentActiveRun.id}'),
-                          child: SectionCard(
-                            color: Colors.black,
-                            child: const Row(
-                              children: [
-                                Icon(Icons.navigation, color: Colors.white),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    '当前行程进行中',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                  child: CustomScrollView(
+                    key: _sheetScrollKey,
+                    controller: scrollController,
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Column(
+                          key: _sheetHeaderKey,
+                          children: [
+                            const SizedBox(height: 12),
+                            Container(
+                              width: 48,
+                              height: 5,
+                              decoration: BoxDecoration(
+                                color: Colors.black12,
+                                borderRadius: BorderRadius.circular(99),
+                              ),
                             ),
-                          ),
-                        ),
-                      if (currentActiveRun != null) const SizedBox(height: 12),
-                      for (final run in pendingRuns) ...[
-                        SectionCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Row(
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.softGray,
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
-                                    child: const Icon(Icons.place),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          run.location,
-                                          style: const TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.w900,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          run.timeLabel,
-                                          style: const TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        if (run.notes.isNotEmpty) ...[
-                                          const SizedBox(height: 12),
-                                          Container(
-                                            width: double.infinity,
-                                            padding: const EdgeInsets.all(12),
-                                            decoration: BoxDecoration(
-                                              color: AppTheme.softGray,
-                                              borderRadius: BorderRadius.circular(14),
-                                            ),
-                                            child: Text('备注: ${run.notes}'),
-                                          ),
-                                        ],
-                                      ],
+                                  Text(
+                                    '附近需求 (${pendingRuns.length})',
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w900,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16),
-                              SizedBox(
-                                width: double.infinity,
-                                child: FilledButton(
-                                  onPressed: currentActiveRun != null
-                                      ? null
-                                      : () {
-                                          controller.acceptRun(run.id);
-                                          context.go('/volunteer/run/${run.id}');
-                                        },
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: Colors.black,
-                                    foregroundColor: Colors.white,
-                                    disabledBackgroundColor: Colors.black12,
-                                    disabledForegroundColor: Colors.black38,
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18),
-                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (_isCollapsed)
+                        const SliverToBoxAdapter(child: SizedBox(height: 12))
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                          sliver: SliverList.list(
+                            children: [
+                              if (currentActiveRun != null)
+                                GestureDetector(
+                                  onTap: () => context.go(
+                                    '/volunteer/run/${currentActiveRun.id}',
                                   ),
-                                  child: Text(
-                                    currentActiveRun != null ? '请先完成当前行程' : '立即接单',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
+                                  child: SectionCard(
+                                    color: Colors.black,
+                                    child: const Row(
+                                      children: [
+                                        Icon(
+                                          Icons.navigation,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            '当前行程进行中',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ),
+                              if (currentActiveRun != null)
+                                const SizedBox(height: 12),
+                              for (final run in pendingRuns) ...[
+                                SectionCard(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.softGray,
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                            ),
+                                            child: const Icon(Icons.place),
+                                          ),
+                                          const SizedBox(width: 14),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  run.location,
+                                                  style: const TextStyle(
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.w900,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 6),
+                                                Text(
+                                                  run.timeLabel,
+                                                  style: const TextStyle(
+                                                    color: Colors.black54,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                if (run.notes.isNotEmpty) ...[
+                                                  const SizedBox(height: 12),
+                                                  Container(
+                                                    width: double.infinity,
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          12,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: AppTheme.softGray,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            14,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      '备注: ${run.notes}',
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: FilledButton(
+                                          onPressed: currentActiveRun != null
+                                              ? null
+                                              : () {
+                                                  widget.controller.acceptRun(
+                                                    run.id,
+                                                  );
+                                                  context.go(
+                                                    '/volunteer/run/${run.id}',
+                                                  );
+                                                },
+                                          style: FilledButton.styleFrom(
+                                            backgroundColor: Colors.black,
+                                            foregroundColor: Colors.white,
+                                            disabledBackgroundColor:
+                                                Colors.black12,
+                                            disabledForegroundColor:
+                                                Colors.black38,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            currentActiveRun != null
+                                                ? '请先完成当前行程'
+                                                : '立即接单',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                              const SizedBox(height: 40),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                      ],
-                      const SizedBox(height: 40),
                     ],
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ),
@@ -413,62 +500,61 @@ class _VolunteerStoreTab extends StatelessWidget {
                 crossAxisSpacing: 16,
                 childAspectRatio: 0.6,
               ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final item = rewards[index];
-                  return SectionCard(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppNetworkImage(
-                          imageUrl: item.imageUrl,
-                          height: 96,
-                          width: double.infinity,
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final item = rewards[index];
+                return SectionCard(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppNetworkImage(
+                        imageUrl: item.imageUrl,
+                        height: 96,
+                        width: double.infinity,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        item.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          item.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
+                      ),
+                      const Spacer(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${item.points} 积分',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                        const Spacer(),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${item.points} 积分',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: double.infinity,
-                              child: FilledButton(
-                                onPressed: () {},
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  foregroundColor: Colors.white,
-                                  minimumSize: const Size.fromHeight(36),
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: () {},
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size.fromHeight(36),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
                                 ),
-                                child: const Text('兑换'),
                               ),
+                              child: const Text('兑换'),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                childCount: rewards.length,
-              ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }, childCount: rewards.length),
             ),
           ),
         ],
@@ -505,7 +591,10 @@ class _VolunteerProfileTab extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   user?.displayName ?? '志愿者',
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -559,10 +648,7 @@ class _VolunteerProfileTab extends StatelessWidget {
 }
 
 class _Metric extends StatelessWidget {
-  const _Metric({
-    required this.label,
-    required this.value,
-  });
+  const _Metric({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -571,7 +657,10 @@ class _Metric extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+        ),
         const SizedBox(height: 4),
         Text(label, style: const TextStyle(color: Colors.black54)),
       ],

@@ -61,6 +61,10 @@
                                                binaryMessenger:registrar.messenger];
         
         NSDictionary *dict = args;
+
+        if ([dict objectForKey:@"privacyStatement"] != nil) {
+            [self updatePrivacyStateWithDict:[dict objectForKey:@"privacyStatement"]];
+        }
         
         NSDictionary *apiKey = dict[@"apiKey"];
         if (apiKey && [apiKey isKindOfClass:[NSDictionary class]]) {
@@ -76,10 +80,6 @@
         AMapCameraPosition *cameraPosition = [AMapJsonUtils modelFromDict:cameraDict modelClass:[AMapCameraPosition class]];
         
         _viewId = viewId;
-        
-        if ([dict objectForKey:@"privacyStatement"] != nil) {
-            [self updatePrivacyStateWithDict:[dict objectForKey:@"privacyStatement"]];
-        }
 
         
         self.mapInitCompleted = NO;

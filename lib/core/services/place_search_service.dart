@@ -6,10 +6,7 @@ import 'package:aidrun_demo/core/services/amap_location_service.dart';
 import 'package:http/http.dart' as http;
 
 abstract class PlaceSearchService {
-  Future<List<PlaceSuggestion>> search(
-    String keyword, {
-    DeviceLocation? near,
-  });
+  Future<List<PlaceSuggestion>> search(String keyword, {DeviceLocation? near});
 }
 
 class AMapPlaceSearchService implements PlaceSearchService {
@@ -54,7 +51,7 @@ class AMapPlaceSearchService implements PlaceSearchService {
       return const [];
     }
 
-    if (!_config.hasWebKey) {
+    if (_config.isNoAMapDemoMode || !_config.hasWebKey) {
       return _searchFallback(trimmed);
     }
 
@@ -95,7 +92,8 @@ class AMapPlaceSearchService implements PlaceSearchService {
           continue;
         }
         final name = (item['name'] as String?)?.trim() ?? '';
-        final address = (item['district'] as String? ?? '') +
+        final address =
+            (item['district'] as String? ?? '') +
             ((item['address'] as String?)?.trim() ?? '');
         final location = (item['location'] as String?)?.trim() ?? '';
         if (name.isEmpty || location.isEmpty || !location.contains(',')) {

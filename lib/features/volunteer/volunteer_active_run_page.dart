@@ -8,10 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class VolunteerActiveRunPage extends ConsumerWidget {
-  const VolunteerActiveRunPage({
-    super.key,
-    required this.runId,
-  });
+  const VolunteerActiveRunPage({super.key, required this.runId});
 
   final String runId;
 
@@ -22,9 +19,7 @@ class VolunteerActiveRunPage extends ConsumerWidget {
     final config = ref.watch(aMapConfigProvider);
     final run = state.runs.where((item) => item.id == runId).firstOrNull;
     if (run == null) {
-      return const Scaffold(
-        body: Center(child: Text('未找到行程')),
-      );
+      return const Scaffold(body: Center(child: Text('未找到行程')));
     }
 
     if (run.status == RunStatus.completed) {
@@ -48,7 +43,9 @@ class VolunteerActiveRunPage extends ConsumerWidget {
                       snippet: run.address,
                     ),
                 ],
-                fallbackMessage: '高德地图未配置完成，结算页地图已降级为占位状态。',
+                fallbackMessage: config.isNoAMapDemoMode
+                    ? '当前处于 no-AMap 演示模式，结算页地图已降级为占位状态。'
+                    : '高德地图未配置完成，结算页地图已降级为占位状态。',
               ),
             ),
             Align(
@@ -64,7 +61,10 @@ class VolunteerActiveRunPage extends ConsumerWidget {
                   children: [
                     const Text(
                       '行程结算',
-                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     const Text('感谢您的爱心陪伴'),
@@ -175,7 +175,9 @@ class VolunteerActiveRunPage extends ConsumerWidget {
                     snippet: run.address.isEmpty ? run.timeLabel : run.address,
                   ),
               ],
-              fallbackMessage: '高德地图未配置完成，行程地图已降级为占位状态。',
+              fallbackMessage: config.isNoAMapDemoMode
+                  ? '当前处于 no-AMap 演示模式，行程地图已降级为占位状态。'
+                  : '高德地图未配置完成，行程地图已降级为占位状态。',
             ),
           ),
           Positioned(
@@ -205,19 +207,20 @@ class VolunteerActiveRunPage extends ConsumerWidget {
                 children: [
                   Text(
                     run.status.volunteerLabel,
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    switch (run.status) {
-                      RunStatus.accepted => '请尽快前往指定地点',
-                      RunStatus.arrived => '您已到达，请与跑者汇合',
-                      RunStatus.running => '保持配速，注意安全',
-                      RunStatus.pending => '准备接单',
-                      RunStatus.completed => '感谢您的志愿服务',
-                      RunStatus.cancelled => '行程已取消',
-                    },
-                  ),
+                  Text(switch (run.status) {
+                    RunStatus.accepted => '请尽快前往指定地点',
+                    RunStatus.arrived => '您已到达，请与跑者汇合',
+                    RunStatus.running => '保持配速，注意安全',
+                    RunStatus.pending => '准备接单',
+                    RunStatus.completed => '感谢您的志愿服务',
+                    RunStatus.cancelled => '行程已取消',
+                  }),
                   const SizedBox(height: 20),
                   SectionCard(
                     color: AppTheme.softGray,
@@ -236,8 +239,14 @@ class VolunteerActiveRunPage extends ConsumerWidget {
                                 ),
                               ),
                             ),
-                            IconButton(onPressed: () {}, icon: const Icon(Icons.message)),
-                            IconButton(onPressed: () {}, icon: const Icon(Icons.phone)),
+                            IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.message),
+                            ),
+                            IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.phone),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -267,7 +276,10 @@ class VolunteerActiveRunPage extends ConsumerWidget {
                         } else if (run.status == RunStatus.arrived) {
                           controller.updateRunStatus(run.id, RunStatus.running);
                         } else if (run.status == RunStatus.running) {
-                          controller.updateRunStatus(run.id, RunStatus.completed);
+                          controller.updateRunStatus(
+                            run.id,
+                            RunStatus.completed,
+                          );
                         }
                       },
                       style: FilledButton.styleFrom(
@@ -280,14 +292,12 @@ class VolunteerActiveRunPage extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                      icon: Icon(
-                        switch (run.status) {
-                          RunStatus.accepted => Icons.navigation,
-                          RunStatus.arrived => Icons.play_arrow,
-                          RunStatus.running => Icons.flag,
-                          _ => Icons.check,
-                        },
-                      ),
+                      icon: Icon(switch (run.status) {
+                        RunStatus.accepted => Icons.navigation,
+                        RunStatus.arrived => Icons.play_arrow,
+                        RunStatus.running => Icons.flag,
+                        _ => Icons.check,
+                      }),
                       label: Text(
                         switch (run.status) {
                           RunStatus.accepted => '我已到达集合点',

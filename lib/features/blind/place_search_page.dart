@@ -11,7 +11,8 @@ class BlindPlaceSearchPage extends ConsumerStatefulWidget {
   const BlindPlaceSearchPage({super.key});
 
   @override
-  ConsumerState<BlindPlaceSearchPage> createState() => _BlindPlaceSearchPageState();
+  ConsumerState<BlindPlaceSearchPage> createState() =>
+      _BlindPlaceSearchPageState();
 }
 
 class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
@@ -26,9 +27,9 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(speechServiceProvider).speak(
-            '地点搜索页面。你可以输入文字，或者点击语音按钮搜索地点。',
-          );
+      await ref
+          .read(speechServiceProvider)
+          .speak('地点搜索页面。你可以输入文字，或者点击语音按钮搜索地点。');
       final location = await ref.read(appLocationServiceProvider).locateOnce();
       if (!mounted) {
         return;
@@ -50,10 +51,9 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
       return;
     }
     setState(() => _loading = true);
-    final results = await ref.read(placeSearchServiceProvider).search(
-          query,
-          near: _currentLocation,
-        );
+    final results = await ref
+        .read(placeSearchServiceProvider)
+        .search(query, near: _currentLocation);
     if (!mounted) {
       return;
     }
@@ -65,7 +65,9 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
 
   Future<void> _searchByVoice() async {
     await ref.read(speechServiceProvider).speak('请说出想去的地点名称。');
-    final transcript = await ref.read(speechRecognitionServiceProvider).listenForTranscript();
+    final transcript = await ref
+        .read(speechRecognitionServiceProvider)
+        .listenForTranscript();
     if (!mounted || transcript.trim().isEmpty) {
       return;
     }
@@ -87,15 +89,18 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (!config.hasWebKey)
-            const SectionCard(
-              color: Color(0xFF1F2937),
+          if (config.isNoAMapDemoMode || !config.hasWebKey)
+            SectionCard(
+              color: const Color(0xFF1F2937),
               child: Text(
-                '当前未配置高德 Web Service Key，地点候选将回退为本地演示数据。',
-                style: TextStyle(color: Colors.white),
+                config.isNoAMapDemoMode
+                    ? '当前处于 no-AMap 演示模式，地点候选将使用本地演示数据。'
+                    : '当前未配置高德 Web Service Key，地点候选将回退为本地演示数据。',
+                style: const TextStyle(color: Colors.white),
               ),
             ),
-          if (!config.hasWebKey) const SizedBox(height: 12),
+          if (config.isNoAMapDemoMode || !config.hasWebKey)
+            const SizedBox(height: 12),
           SectionCard(
             child: Column(
               children: [
@@ -124,7 +129,10 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
                     icon: const Icon(Icons.mic),
                     label: const Text(
                       '语音搜索地点',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                 ),
@@ -157,11 +165,16 @@ class _BlindPlaceSearchPageState extends ConsumerState<BlindPlaceSearchPage> {
                     leading: const CircleAvatar(child: Icon(Icons.place)),
                     title: Text(
                       place.name,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 8),
-                      child: Text(place.address.isEmpty ? '未提供详细地址' : place.address),
+                      child: Text(
+                        place.address.isEmpty ? '未提供详细地址' : place.address,
+                      ),
                     ),
                     trailing: FilledButton(
                       onPressed: () => context.pop(place),

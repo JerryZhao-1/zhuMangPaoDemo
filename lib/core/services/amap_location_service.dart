@@ -8,10 +8,7 @@ import 'package:amap_flutter_location/amap_location_option.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class DeviceLocation {
-  const DeviceLocation({
-    required this.latitude,
-    required this.longitude,
-  });
+  const DeviceLocation({required this.latitude, required this.longitude});
 
   final double latitude;
   final double longitude;
@@ -28,6 +25,9 @@ class AMapLocationService implements AppLocationService {
 
   @override
   Future<DeviceLocation?> locateOnce() async {
+    if (_config.isNoAMapDemoMode) {
+      return null;
+    }
     if (!_config.supportsNativeMap) {
       return null;
     }
@@ -59,7 +59,9 @@ class AMapLocationService implements AppLocationService {
       subscription = plugin.onLocationChanged().listen((result) {
         final latitude = result['latitude'];
         final longitude = result['longitude'];
-        if (latitude is double && longitude is double && !completer.isCompleted) {
+        if (latitude is double &&
+            longitude is double &&
+            !completer.isCompleted) {
           completer.complete(
             DeviceLocation(latitude: latitude, longitude: longitude),
           );
