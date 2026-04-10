@@ -5,6 +5,7 @@ import 'package:aidrun_demo/core/repositories/run_repository.dart';
 import 'package:aidrun_demo/core/repositories/settings_repository.dart';
 import 'package:aidrun_demo/core/services/amap_config.dart';
 import 'package:aidrun_demo/core/services/amap_location_service.dart';
+import 'package:aidrun_demo/core/services/blind_accessibility_service.dart';
 import 'package:aidrun_demo/core/services/place_search_service.dart';
 import 'package:aidrun_demo/core/services/speech_recognition_service.dart';
 import 'package:aidrun_demo/core/services/speech_service.dart';
@@ -42,6 +43,11 @@ final placeSearchServiceProvider = Provider<PlaceSearchService>(
 
 final speechServiceProvider = Provider<SpeechService>(
   (ref) => DeviceSpeechService(),
+);
+
+final blindAccessibilityServiceProvider = Provider<BlindAccessibilityService>(
+  (ref) =>
+      CoordinatedBlindAccessibilityService(ref.watch(speechServiceProvider)),
 );
 
 final speechRecognitionServiceProvider = Provider<SpeechRecognitionService>(

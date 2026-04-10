@@ -2,14 +2,34 @@ import 'dart:async';
 
 import 'package:aidrun_demo/core/models/place_suggestion.dart';
 import 'package:aidrun_demo/core/models/run_request_input.dart';
+import 'package:flutter/foundation.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+enum VoiceCaptureState {
+  idle,
+  listening,
+  processing,
+  success,
+  error,
+  unavailable,
+}
+
+class VoiceCaptureResult {
+  const VoiceCaptureResult({required this.state, this.transcript = ''});
+
+  final VoiceCaptureState state;
+  final String transcript;
+
+  bool get hasTranscript => transcript.trim().isNotEmpty;
+}
+
 abstract class SpeechRecognitionService {
   Future<RunRequestInput> listenForRunRequest();
-  Future<String> listenForTranscript({
+  Future<VoiceCaptureResult> listenForTranscript({
     Duration listenFor = const Duration(seconds: 6),
     Duration pauseFor = const Duration(seconds: 2),
+    ValueChanged<VoiceCaptureState>? onStateChanged,
   });
   String parseTimeLabel(String transcript);
 }
@@ -21,26 +41,29 @@ class DeviceSpeechRecognitionService implements SpeechRecognitionService {
 
   @override
   Future<RunRequestInput> listenForRunRequest() async {
-    final transcript = await listenForTranscript();
-    if (transcript.trim().isEmpty) {
+    final result = await listenForTranscript();
+    if (!result.hasTranscript) {
       return _fallback();
     }
-    return _parseTranscript(transcript);
+    return _parseTranscript(result.transcript);
   }
 
   @override
-  Future<String> listenForTranscript({
+  Future<VoiceCaptureResult> listenForTranscript({
     Duration listenFor = const Duration(seconds: 6),
     Duration pauseFor = const Duration(seconds: 2),
+    ValueChanged<VoiceCaptureState>? onStateChanged,
   }) async {
     try {
       final available = await _speechToText.initialize();
       if (!available) {
-        return '';
+        onStateChanged?.call(VoiceCaptureState.unavailable);
+        return const VoiceCaptureResult(state: VoiceCaptureState.unavailable);
       }
 
       final completer = Completer<String>();
       var latestTranscript = '';
+      onStateChanged?.call(VoiceCaptureState.listening);
 
       await _speechToText.listen(
         localeId: 'zh_CN',
@@ -63,16 +86,24 @@ class DeviceSpeechRecognitionService implements SpeechRecognitionService {
         onTimeout: () => latestTranscript,
       );
 
+      onStateChanged?.call(VoiceCaptureState.processing);
       await _speechToText.stop();
-      if (transcript.trim().isEmpty) {
-        return '';
+      final normalizedTranscript = transcript.trim();
+      if (normalizedTranscript.isEmpty) {
+        onStateChanged?.call(VoiceCaptureState.error);
+        return const VoiceCaptureResult(state: VoiceCaptureState.error);
       }
-      return transcript;
+      onStateChanged?.call(VoiceCaptureState.success);
+      return VoiceCaptureResult(
+        state: VoiceCaptureState.success,
+        transcript: normalizedTranscript,
+      );
     } catch (_) {
       try {
         await _speechToText.stop();
       } catch (_) {}
-      return '';
+      onStateChanged?.call(VoiceCaptureState.error);
+      return const VoiceCaptureResult(state: VoiceCaptureState.error);
     }
   }
 
