@@ -14,7 +14,7 @@ class AidRunApp extends ConsumerWidget {
       title: 'AidRun 助盲跑',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

@@ -8,6 +8,7 @@ class AMapConfig {
     required this.androidKey,
     required this.iosKey,
     required this.webKey,
+    this.disableAMap = false,
   });
 
   factory AMapConfig.fromEnvironment() {
@@ -15,19 +16,25 @@ class AMapConfig {
       androidKey: String.fromEnvironment('AMAP_ANDROID_KEY'),
       iosKey: String.fromEnvironment('AMAP_IOS_KEY'),
       webKey: String.fromEnvironment('AMAP_WEB_KEY'),
+      disableAMap: bool.fromEnvironment('DISABLE_AMAP'),
     );
   }
 
   final String androidKey;
   final String iosKey;
   final String webKey;
+  final bool disableAMap;
 
-  bool get hasAndroidKey => androidKey.isNotEmpty;
-  bool get hasIosKey => iosKey.isNotEmpty;
+  bool get hasAndroidKey => !disableAMap && androidKey.isNotEmpty;
+  bool get hasIosKey => !disableAMap && iosKey.isNotEmpty;
   bool get hasNativeKeys => hasAndroidKey || hasIosKey;
-  bool get hasWebKey => webKey.isNotEmpty;
+  bool get hasWebKey => !disableAMap && webKey.isNotEmpty;
+  bool get isNoAMapDemoMode => disableAMap;
 
   bool get supportsNativeMap {
+    if (disableAMap) {
+      return false;
+    }
     if (kIsWeb) {
       return false;
     }

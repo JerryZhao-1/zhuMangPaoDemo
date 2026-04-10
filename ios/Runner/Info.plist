@@ -4,6 +4,8 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>AMapApiKey</key>
+	<string>$(AMAP_IOS_KEY)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -26,6 +28,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>io.flutter.embedded_views_preview</key>
+	<string>YES</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>用于语音预约和语音识别演示。</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

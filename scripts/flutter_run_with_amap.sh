@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 ENV_FILE="$PROJECT_ROOT/.env.amap.local"
+IOS_XCCONFIG_FILE="$PROJECT_ROOT/ios/Flutter/Amap.local.xcconfig"
 
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "Missing $ENV_FILE"
@@ -13,6 +14,10 @@ fi
 set -a
 source "$ENV_FILE"
 set +a
+
+cat > "$IOS_XCCONFIG_FILE" <<EOF
+AMAP_IOS_KEY=$AMAP_IOS_KEY
+EOF
 
 cd "$PROJECT_ROOT"
 

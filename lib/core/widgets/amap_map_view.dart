@@ -48,7 +48,11 @@ class AMapMapView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!config.supportsNativeMap) {
       return _MapFallback(
-        message: fallbackMessage ?? '未配置高德地图 Key，当前显示地图占位状态。',
+        message:
+            fallbackMessage ??
+            (config.isNoAMapDemoMode
+                ? '当前处于 no-AMap 演示模式，地图区域显示占位内容。'
+                : '未配置高德地图 Key，当前显示地图占位状态。'),
       );
     }
 
@@ -57,14 +61,13 @@ class AMapMapView extends StatelessWidget {
         future: NativeRuntimeService.isAndroidEmulator(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return _MapFallback(
-              message: fallbackMessage ?? '地图初始化中，请稍候。',
-            );
+            return _MapFallback(message: fallbackMessage ?? '地图初始化中，请稍候。');
           }
           if (snapshot.data == true) {
             return _MapFallback(
               message:
-                  fallbackMessage ?? 'Android 模拟器上的高德原生地图不稳定，当前显示地图占位。请使用真机查看真实地图效果。',
+                  fallbackMessage ??
+                  'Android 模拟器上的高德原生地图不稳定，当前显示地图占位。请使用真机查看真实地图效果。',
             );
           }
           return _buildNativeMap();
@@ -79,10 +82,7 @@ class AMapMapView extends StatelessWidget {
     final mappedMarkers = markers.map((item) {
       return Marker(
         position: LatLng(item.latitude, item.longitude),
-        infoWindow: InfoWindow(
-          title: item.title,
-          snippet: item.snippet,
-        ),
+        infoWindow: InfoWindow(title: item.title, snippet: item.snippet),
       );
     }).toSet();
 
