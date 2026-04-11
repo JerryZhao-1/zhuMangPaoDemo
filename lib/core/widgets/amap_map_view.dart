@@ -4,6 +4,7 @@ import 'package:aidrun_demo/core/services/amap_config.dart';
 import 'package:aidrun_demo/core/services/native_runtime_service.dart';
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 import 'package:amap_flutter_map/amap_flutter_map.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AMapMarkerViewData {
@@ -49,6 +50,13 @@ class AMapMapView extends StatelessWidget {
     if (!config.supportsNativeMap) {
       return _MapFallback(
         message: fallbackMessage ?? '未配置高德地图 Key，当前显示地图占位状态。',
+      );
+    }
+
+    if (Platform.isIOS && kDebugMode) {
+      return _MapFallback(
+        message:
+            fallbackMessage ?? 'iOS 真机 Debug 下高德原生地图暂时关闭，当前显示地图占位。请先完成页面调试，后续再单独验证地图兼容性。',
       );
     }
 

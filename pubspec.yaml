@@ -13,7 +13,6 @@ dependencies:
   flutter_riverpod: ^3.0.3
   go_router: ^16.2.1
   shared_preferences: ^2.5.3
-  flutter_tts: ^4.2.3
   speech_to_text: ^7.3.0
   amap_flutter_map: ^3.0.0
   amap_flutter_location: ^3.0.0

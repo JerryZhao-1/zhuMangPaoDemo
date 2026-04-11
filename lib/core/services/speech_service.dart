@@ -1,4 +1,5 @@
-import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 abstract class SpeechService {
   Future<void> speak(String text);
@@ -6,33 +7,70 @@ abstract class SpeechService {
 }
 
 class DeviceSpeechService implements SpeechService {
-  final FlutterTts _tts = FlutterTts();
+  static const MethodChannel _channel = MethodChannel('aidrun/speech');
+  static const String _language = 'zh-CN';
+  static const double _rate = 0.48;
+  static const double _pitch = 1.0;
+
   Future<void>? _setupFuture;
+  bool _enabled = _supportsPlatform;
+
+  static bool get _supportsPlatform {
+    if (kIsWeb) {
+      return false;
+    }
+    if (defaultTargetPlatform == TargetPlatform.iOS && kDebugMode) {
+      return false;
+    }
+    return defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android;
+  }
 
   Future<void> _ensureSetup() {
+    if (!_enabled) {
+      return Future.value();
+    }
     return _setupFuture ??= () async {
-      await _tts.setLanguage('zh-CN');
-      await _tts.setSpeechRate(0.48);
-      await _tts.setPitch(1.0);
-      await _tts.awaitSpeakCompletion(true);
-      await _tts.setQueueMode(1);
+      try {
+        await _channel.invokeMethod<void>('configure', <String, dynamic>{
+          'language': _language,
+          'rate': _rate,
+          'pitch': _pitch,
+        });
+      } catch (_) {
+        _enabled = false;
+      }
     }();
   }
 
   @override
   Future<void> speak(String text) async {
+    if (!_enabled) {
+      return;
+    }
     try {
       await _ensureSetup();
-      await _tts.stop();
-      await _tts.speak(text);
+      if (!_enabled) {
+        return;
+      }
+      await _channel.invokeMethod<void>('stop');
+      await _channel.invokeMethod<void>('speak', <String, dynamic>{
+        'text': text,
+      });
     } catch (_) {}
   }
 
   @override
   Future<void> stop() async {
+    if (!_enabled) {
+      return;
+    }
     try {
       await _ensureSetup();
-      await _tts.stop();
+      if (!_enabled) {
+        return;
+      }
+      await _channel.invokeMethod<void>('stop');
     } catch (_) {}
   }
 }
