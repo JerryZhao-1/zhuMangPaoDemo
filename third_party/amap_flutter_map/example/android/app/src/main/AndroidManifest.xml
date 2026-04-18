@@ -17,9 +17,7 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="amap_flutter_map_example"
         android:icon="@mipmap/ic_launcher">
-        <!-- <meta-data
-            android:name="com.amap.api.v2.apikey"
-            android:value="900f72eeee0f21e435cebb0ef155582a" /> -->
+        <!-- Inject com.amap.api.v2.apikey from local build settings when needed. -->
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

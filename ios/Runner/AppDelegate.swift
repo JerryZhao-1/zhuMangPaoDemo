@@ -5,6 +5,8 @@ import UIKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+  private var deviceChannel: FlutterMethodChannel?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -18,11 +20,20 @@ import UIKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "SpeechPlugin") {
       SpeechPlugin.register(with: registrar)
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "AidrunDeviceRuntimePlugin") {
+      deviceChannel = FlutterMethodChannel(
+        name: Self.deviceChannelName,
+        binaryMessenger: registrar.messenger()
+      )
+      deviceChannel?.setMethodCallHandler { [weak self] call, result in
+        self?.handleDeviceMethodCall(call, result: result)
+      }
+    }
   }
 
   private func configureAMap() {
     guard
-      let apiKey = Bundle.main.object(forInfoDictionaryKey: "AMapApiKey") as? String,
+      let apiKey = amapApiKey,
       !apiKey.isEmpty
     else {
       return
@@ -32,4 +43,21 @@ import UIKit
     MAMapView.updatePrivacyAgree(.didAgree)
     AMapServices.shared().apiKey = apiKey
   }
+
+  private var amapApiKey: String? {
+    Bundle.main.object(forInfoDictionaryKey: "AMapApiKey") as? String
+  }
+
+  private func handleDeviceMethodCall(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    switch call.method {
+    case "getIosRuntimeConfig":
+      result([
+        "amapIosKey": amapApiKey ?? "",
+      ])
+    default:
+      result(FlutterMethodNotImplemented)
+    }
+  }
+
+  private static let deviceChannelName = "aidrun/device"
 }

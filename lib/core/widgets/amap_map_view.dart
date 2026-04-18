@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:aidrun_demo/core/services/amap_config.dart';
 import 'package:aidrun_demo/core/services/native_runtime_service.dart';
 import 'package:amap_flutter_base/amap_flutter_base.dart';
@@ -53,51 +51,65 @@ class AMapMapView extends StatelessWidget {
       );
     }
 
-    if (Platform.isIOS && kDebugMode) {
+    if (config.isIosPlatform && kDebugMode) {
       return _MapFallback(
         message:
-            fallbackMessage ?? 'iOS 真机 Debug 下高德原生地图暂时关闭，当前显示地图占位。请先完成页面调试，后续再单独验证地图兼容性。',
+            fallbackMessage ??
+            'iOS 真机 Debug 下高德原生地图暂时关闭，当前显示地图占位。请先完成页面调试，后续再单独验证地图兼容性。',
       );
     }
 
-    if (Platform.isAndroid) {
+    if (config.isAndroidPlatform) {
       return FutureBuilder<bool>(
         future: NativeRuntimeService.isAndroidEmulator(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return _MapFallback(
-              message: fallbackMessage ?? '地图初始化中，请稍候。',
-            );
+            return _MapFallback(message: fallbackMessage ?? '地图初始化中，请稍候。');
           }
           if (snapshot.data == true) {
             return _MapFallback(
               message:
-                  fallbackMessage ?? 'Android 模拟器上的高德原生地图不稳定，当前显示地图占位。请使用真机查看真实地图效果。',
+                  fallbackMessage ??
+                  'Android 模拟器上的高德原生地图不稳定，当前显示地图占位。请使用真机查看真实地图效果。',
             );
           }
-          return _buildNativeMap();
+          return _buildNativeMap(config.apiKey);
         },
       );
     }
 
-    return _buildNativeMap();
+    if (config.isIosPlatform) {
+      return FutureBuilder<AMapApiKey?>(
+        future: config.resolveNativeApiKey(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return _MapFallback(message: fallbackMessage ?? '地图初始化中，请稍候。');
+          }
+          if (snapshot.data == null) {
+            return _MapFallback(
+              message: fallbackMessage ?? '未配置高德地图 Key，当前显示地图占位状态。',
+            );
+          }
+          return _buildNativeMap(snapshot.data);
+        },
+      );
+    }
+
+    return _buildNativeMap(config.apiKey);
   }
 
-  Widget _buildNativeMap() {
+  Widget _buildNativeMap(AMapApiKey? apiKey) {
     final mappedMarkers = markers.map((item) {
       return Marker(
         position: LatLng(item.latitude, item.longitude),
-        infoWindow: InfoWindow(
-          title: item.title,
-          snippet: item.snippet,
-        ),
+        infoWindow: InfoWindow(title: item.title, snippet: item.snippet),
       );
     }).toSet();
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: AMapWidget(
-        apiKey: config.apiKey,
+        apiKey: apiKey,
         privacyStatement: AMapConfig.privacyStatement,
         initialCameraPosition: CameraPosition(
           target: LatLng(centerLatitude, centerLongitude),

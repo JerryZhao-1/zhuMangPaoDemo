@@ -28,9 +28,13 @@ migrate_working_dir/
 **/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins-dependencies
+.env
+.env.local
 .pub-cache/
 .pub/
 .env*.local
+/firebase-applet-config.json
+/ios/Flutter/Amap.local.xcconfig
 /build/
 /coverage/
 
